@@ -32,6 +32,9 @@ importers:
       react-redux:
         specifier: ^9.2.0
         version: 9.2.0(@types/react@19.1.12)(react@19.1.1)(redux@5.0.1)
+      reselect:
+        specifier: ^5.1.1
+        version: 5.1.1
       tailwindcss:
         specifier: ^4.1.12
         version: 4.1.12

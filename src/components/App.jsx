@@ -5,6 +5,7 @@ import { setFilter } from "../redux/slice";
 import ContactForm from "./ContactForm";
 import ContactList from "./ContactList";
 import Filter from "./Filter";
+import { selectFilteredContacts } from "../redux/slice.js"
 
 export default function App() {
   const items = useSelector((state) => state.contacts.items);
@@ -24,9 +25,7 @@ export default function App() {
     dispatch(addContact({ name, number }));
   };
 
-  const filteredContacts = items.filter((c) =>
-    c.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filteredContacts = useSelector(selectFilteredContacts);
 
   return (
     <section className="min-h-screen bg-purple-100 p-8 flex flex-col items-center justify-center">

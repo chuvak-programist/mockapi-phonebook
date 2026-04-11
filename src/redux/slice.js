@@ -1,5 +1,19 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { fetchContacts, addContact, deleteContact } from "./operations";
+
+export const selectContacts = (state) => state.contacts.items;
+export const selectFilter = (state) => state.contacts.filter;
+
+export const selectFilteredContacts = createSelector(
+  [selectContacts, selectFilter],
+  (items, filter) => {
+    const normalized = filter.trim().toLowerCase();
+    if (!normalized) return items;
+    return items.filter((contact) =>
+      contact.name.toLowerCase().includes(normalized)
+    );
+  }
+);
 
 const handlePending = (state) => {
   state.isLoading = true;
@@ -7,7 +21,7 @@ const handlePending = (state) => {
 
 const handleRejected = (state, action) => {
   state.isLoading = false;
-  state.error = action.payload;
+  state.error = action.payload ?? action.error?.message;
 };
 
 const contactsSlice = createSlice({
@@ -26,7 +40,13 @@ const contactsSlice = createSlice({
     },
     updateForm: (state, action) => {
       const { field, value } = action.payload;
-      state[field] = value;
+      if (field === "name" || field === "number") {
+        state[field] = value;
+      }
+    },
+    clearForm: (state) => {
+      state.name = "";
+      state.number = "";
     },
   },
   extraReducers: (builder) => {
@@ -51,11 +71,12 @@ const contactsSlice = createSlice({
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.isLoading = false;
         state.error = null;
-        state.items = state.items.filter((item) => item.id !== action.payload.id);
+        const deletedId = action.payload?.id ?? action.meta.arg;
+        state.items = state.items.filter((item) => item.id !== deletedId);
       })
       .addCase(deleteContact.rejected, handleRejected);
   },
 });
 
-export const { setFilter, updateForm } = contactsSlice.actions;
+export const { setFilter, updateForm, clearForm } = contactsSlice.actions;
 export const contactsReducer = contactsSlice.reducer;
